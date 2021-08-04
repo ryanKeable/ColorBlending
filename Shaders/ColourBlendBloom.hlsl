@@ -2,8 +2,6 @@ TEXTURE2D_X(_BloomTexLowMip);
 float4 _BloomTexLowMip_TexelSize;
 
 float4 _BloomParams1; // x: scatter, y: clamp, z: threshold (linear), w: threshold knee
-int _UpSampleBloomBlendType;
-
 
 #define Scatter             _BloomParams1.x
 #define ClampMax            _BloomParams1.y
@@ -90,17 +88,17 @@ half4 BloomBlurV(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp), f
     return float4(color, 1.0h);
 }
 
-half3 Upsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp))
+half3 Upsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp), int blend)
 {
     half3 highMip = (SAMPLE_TEXTURE2D_X(sourceTex, sampler_LinearClamp, uv));
 
     half3 lowMip = (SampleTexture2DBicubic(TEXTURE2D_X_ARGS(_BloomTexLowMip, sampler_LinearClamp), uv, _BloomTexLowMip_TexelSize.zwxy, (1.0).xx, unity_StereoEyeIndex));
 
-    return ColourBlend(highMip, lowMip, highMip, Scatter, _UpSampleBloomBlendType);
+    return ColourBlend(highMip, lowMip, highMip, Scatter, blend);
 }
 
-half4 BloomUpsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp))
+half4 BloomUpsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp), int blend)
 {
-    half3 color = Upsample(uv, TEXTURE2D_X_ARGS(sourceTex, sampler_LinearClamp));
+    half3 color = Upsample(uv, TEXTURE2D_X_ARGS(sourceTex, sampler_LinearClamp), blend);
     return float4(color, 1.0h);
 }

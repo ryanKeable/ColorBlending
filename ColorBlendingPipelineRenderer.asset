@@ -17,54 +17,6 @@ MonoBehaviour:
     IsEnabled: 1
     WhenToInsert: 500
     MaterialToBlit: {fileID: 2100000, guid: fbbdfafb6fd2bd04699205b49d8547c7, type: 2}
-    colorBlendType: 13
-    blendColor: {r: 1, g: 0.5921569, b: 0.8098449, a: 0.08627451}
-    bloomThreshold:
-      m_OverrideState: 0
-      m_Value: 1
-      min: 0
-    bloomIntenisty:
-      m_OverrideState: 0
-      m_Value: 0.65
-      min: 0
-    bloomScatter:
-      m_OverrideState: 0
-      m_Value: 0.5
-      min: 0
-      max: 1
-    bloomTint:
-      m_OverrideState: 0
-      m_Value: {r: 0.9622642, g: 0.77753115, b: 0.55072975, a: 1}
-      hdr: 0
-      showAlpha: 0
-      showEyeDropper: 1
-    upSampleBloomBlend: 11
-    bloomBlendValue:
-      m_OverrideState: 0
-      m_Value: 1
-      min: 0
-      max: 1
-    finalBloomBlend: 9
-    vignetteCenter:
-      m_OverrideState: 0
-      m_Value: {x: 0.5, y: 0.5}
-    vignetteIntensity:
-      m_OverrideState: 0
-      m_Value: 0.5
-      min: 0
-      max: 1
-    vignetteSmoothness:
-      m_OverrideState: 0
-      m_Value: 1
-      min: 0
-      max: 1
-    vignetteTint:
-      m_OverrideState: 0
-      m_Value: {r: 0.12952411, g: 0.47380736, b: 0.6981132, a: 1}
-      hdr: 0
-      showAlpha: 0
-      showEyeDropper: 1
-    vignetteBlend: 4
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
