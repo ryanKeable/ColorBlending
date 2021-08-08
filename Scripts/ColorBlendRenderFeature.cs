@@ -93,10 +93,11 @@ namespace UnityEditor.Rendering.Universal
 
             // This isn't part of the ScriptableRenderPass class and is our own addition.
             // For this custom pass we need the camera's color target, so that gets passed in.
-            public void Setup(RenderTargetIdentifier source, RenderTextureDescriptor desc)
+            public void Setup(RenderTargetIdentifier source, RenderTextureDescriptor desc, ColorBlendSettings colorBlend)
             {
                 this._source = source;
                 this._descriptor = desc;
+                this._ColorBlend = colorBlend;
             }
 
             // Here you can implement the rendering logic.
@@ -108,12 +109,9 @@ namespace UnityEditor.Rendering.Universal
                 CommandBuffer cmd = CommandBufferPool.Get(_profilerTag);
                 cmd.Clear();
 
-                var stack = VolumeManager.instance.stack;
-                _ColorBlend = stack.GetComponent<ColorBlendSettings>();
-
                 SetupColorBlending();
-                SetupVignette();
                 SetupBloom(cmd);
+                SetupVignette();
                 SetupScreenTint();
 
                 cmd.GetTemporaryRT(ShaderParams.tempCopyString, _descriptor, FilterMode.Point);
@@ -132,20 +130,21 @@ namespace UnityEditor.Rendering.Universal
 
             void SetupColorBlending()
             {
-                int vignetteTintBlend = (int)_ColorBlend.vignetteBlend.value;
                 int bloomUpSampleBlend = (int)_ColorBlend.bloomUpSampleBlend.value;
                 int bloomFinalBlend = (int)_ColorBlend.bloomFinalBlend.value;
+                int vignetteTintBlend = (int)_ColorBlend.vignetteBlend.value;
                 int screenTintBlend = (int)_ColorBlend.screenTintBlend.value;
 
-                Vector4 blendTypes = new Vector4(vignetteTintBlend, bloomUpSampleBlend, bloomFinalBlend, screenTintBlend);
+                Vector4 blendTypes = new Vector4(bloomUpSampleBlend, bloomFinalBlend, vignetteTintBlend, screenTintBlend);
                 _materialToBlit.SetVector(ShaderParams.blendTypes, blendTypes);
 
-                float vignetteTintBlendValue = _ColorBlend.vignetteBlendValue.value;
                 float bloomFinalBlendValue = _ColorBlend.bloomBlendValue.value;
+                float vignetteTintBlendValue = _ColorBlend.vignetteBlendValue.value;
                 float screenTintBlendValue = _ColorBlend.screenTintBlendValue.value;
 
-                Vector4 blendTypeValues = new Vector4(vignetteTintBlendValue, bloomFinalBlendValue, screenTintBlendValue, 0);
+                Vector4 blendTypeValues = new Vector4(bloomFinalBlendValue, vignetteTintBlendValue, screenTintBlendValue, 0);
                 _materialToBlit.SetVector(ShaderParams.blendTypeValues, blendTypeValues);
+
             }
 
             #endregion
@@ -154,7 +153,11 @@ namespace UnityEditor.Rendering.Universal
 
             void SetupBloom(CommandBuffer cmd)
             {
-                if (_ColorBlend.bloomIntenisty.value <= 0) return;
+                if (_ColorBlend.bloomIntenisty.value <= 0)
+                {
+                    _materialToBlit.DisableKeyword("_BLOOM");
+                    return;
+                }
 
                 // Start at half-res
                 int tw = _descriptor.width;// >> 1;
@@ -228,7 +231,10 @@ namespace UnityEditor.Rendering.Universal
                 tint = luma > 0f ? tint * (1f / luma) : Color.white;
 
                 var bloomParams = new Vector4(tint.r, tint.g, tint.b, _ColorBlend.bloomIntenisty.value);
+
+                MDebug.LogGreen($"_ColorBlend.bloomIntenisty.value {_ColorBlend.bloomIntenisty.value}");
                 _materialToBlit.SetVector(ShaderParams.bloomParams2, bloomParams);
+                _materialToBlit.EnableKeyword("_BLOOM");
 
                 cmd.SetGlobalTexture(ShaderParams.bloomTexture, ShaderParams.bloomMipUp[0]);
             }
@@ -264,6 +270,8 @@ namespace UnityEditor.Rendering.Universal
 
             void SetupScreenTint()
             {
+                if (_ColorBlend.screenTintBlendValue.value <= 0) return;
+
                 _materialToBlit.SetColor("_ScreenTintColor", _ColorBlend.screenTint.value.linear);
             }
 
@@ -317,13 +325,15 @@ namespace UnityEditor.Rendering.Universal
         // This method is called when setting up the renderer once per-camera.
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (!settings.IsEnabled || settings.MaterialToBlit == null)
+            ColorBlendSettings colorBlend = VolumeManager.instance.stack.GetComponent<ColorBlendSettings>();
+
+            if (!settings.IsEnabled || settings.MaterialToBlit == null || !colorBlend.IsActive())
             {
                 // we can do nothing this frame if we want
                 return;
             }
 
-            colorBlendRenderPass.Setup(renderer.cameraColorTarget, renderingData.cameraData.cameraTargetDescriptor);
+            colorBlendRenderPass.Setup(renderer.cameraColorTarget, renderingData.cameraData.cameraTargetDescriptor, colorBlend);
 
             renderer.EnqueuePass(colorBlendRenderPass);
         }

@@ -54,12 +54,6 @@ namespace UnityEditor.Rendering.Universal
 
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.LabelField("ScreenTint", EditorStyles.miniLabel);
-
-            PropertyField(m_ScreenTint);
-            PropertyField(m_ScreenTintBlend);
-            PropertyField(m_ScreenTintBlendValue);
-
             EditorGUILayout.LabelField("Bloom", EditorStyles.miniLabel);
 
             PropertyField(m_BloomThreshold);
@@ -78,6 +72,12 @@ namespace UnityEditor.Rendering.Universal
             PropertyField(m_VignetteTint);
             PropertyField(m_VignetteBlend);
             PropertyField(m_VignetteBlendValue);
+
+            EditorGUILayout.LabelField("ScreenTint", EditorStyles.miniLabel);
+
+            PropertyField(m_ScreenTint);
+            PropertyField(m_ScreenTintBlend);
+            PropertyField(m_ScreenTintBlendValue);
         }
     }
 }

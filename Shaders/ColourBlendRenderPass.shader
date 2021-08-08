@@ -23,12 +23,12 @@
 
     int4 _BlendTypeParams;
 
-    #define VignetteBlend           _BlendTypeParams.x
-    #define BloomUpSampleBlend      _BlendTypeParams.y
-    #define BloomFinalBlend         _BlendTypeParams.z
+    #define BloomUpSampleBlend      _BlendTypeParams.x
+    #define BloomFinalBlend         _BlendTypeParams.y
+    #define VignetteBlend           _BlendTypeParams.z
     #define ScreenTintBlend         _BlendTypeParams.w
 
-    float3 _BlendValueParams;
+    float4 _BlendValueParams;
 
     #define BloomFinalBlendValue        _BlendValueParams.x
     #define VignetteBlendValue          _BlendValueParams.y
@@ -41,7 +41,7 @@
     #define VignetteIntensity       _VignetteParams2.z
     #define VignetteSmoothness      _VignetteParams2.w
     
-    float4 _BloomParams2; // x: scatter, y: clamp, z: threshold (linear), w: threshold knee
+    float4 _BloomParams2;
 
     #define BloomColor              _BloomParams2.xyz
     #define BloomIntensity          _BloomParams2.w
@@ -106,19 +106,23 @@
         float2 uv = UnityStereoTransformScreenSpaceTex(i.uv);
         half3 color = SAMPLE_TEXTURE2D_X(_MainTex, sampler_LinearClamp, uv);
 
-        color = ColourBlend(color, _ScreenTintColor, color, ScreenTintBlendValue, ScreenTintBlend);
-
-        if (BloomIntensity > 0)
-        {
-            half3 bloom = SAMPLE_TEXTURE2D_X(_BloomTexture, sampler_LinearClamp, uv).xyz * BloomColor;
-            color = ColourBlend(color, bloom, (color + bloom), BloomFinalBlendValue, BloomFinalBlend) * BloomIntensity;
-        }
+        #if defined(_BLOOM)
+            {
+                half3 bloom = SAMPLE_TEXTURE2D_X(_BloomTexture, sampler_LinearClamp, uv).xyz * BloomColor * BloomIntensity;
+                color = ColourBlend(color, (color + saturate(bloom)), (color + bloom), BloomFinalBlendValue, BloomFinalBlend);
+            }
+        #endif
 
         if (VignetteIntensity > 0)
         {
             color = ApplyBlendedVignette(color, i.uv, VignetteCenter, VignetteIntensity, VignetteBlend, VignetteBlendValue, VignetteSmoothness, _VignetteColor);
         }
         
+        if (ScreenTintBlendValue > 0)
+        {
+            color = ColourBlend(color, _ScreenTintColor, color, ScreenTintBlendValue, ScreenTintBlend);
+        }
+
         return float4(color, 1);
     }
 
@@ -199,6 +203,9 @@
 
             #pragma vertex FullscreenVert
             #pragma fragment ColorBlendComposition
+
+            #pragma multi_compile_local_fragment _ _BLOOM
+
             ENDHLSL
 
         }

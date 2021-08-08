@@ -10,32 +10,26 @@ namespace UnityEditor.Rendering.Universal
     [Serializable, VolumeComponentMenu("Custom-Post-Processing/Color-Blend")]
     public sealed class ColorBlendSettings : VolumeComponent, IPostProcessComponent
     {
-        public bool IsEnabled = true;
-        public RenderPassEvent WhenToInsert = RenderPassEvent.AfterRenderingTransparents;
-        public Material MaterialToBlit;
-
-        public ColorParameter screenTint = new ColorParameter(Color.white, false, false, true);
-        public ColourBlendTypeParameter screenTintBlend = new ColourBlendTypeParameter(ColorBlendType.Normal);
-        public ClampedFloatParameter screenTintBlendValue = new ClampedFloatParameter(0.5f, 0f, 1f);
-
         public MinFloatParameter bloomThreshold = new MinFloatParameter(0.9f, 0f);
         public MinFloatParameter bloomIntenisty = new MinFloatParameter(0f, 0f);
         public ClampedFloatParameter bloomScatter = new ClampedFloatParameter(0.7f, 0f, 1f);
         public ColorParameter bloomTint = new ColorParameter(Color.white, false, false, true);
         public ColourBlendTypeParameter bloomUpSampleBlend = new ColourBlendTypeParameter(ColorBlendType.Normal);
-        public ClampedFloatParameter bloomBlendValue = new ClampedFloatParameter(.5f, -1f, 1f);
         public ColourBlendTypeParameter bloomFinalBlend = new ColourBlendTypeParameter(ColorBlendType.Normal);
-
+        public ClampedFloatParameter bloomBlendValue = new ClampedFloatParameter(0f, 0f, 1f);
 
         public Vector2Parameter vignetteCenter = new Vector2Parameter(new Vector2(0.5f, 0.5f));
         public ClampedFloatParameter vignetteIntensity = new ClampedFloatParameter(0f, 0f, 1f);
         public ClampedFloatParameter vignetteSmoothness = new ClampedFloatParameter(0.2f, 0.01f, 1f);
         public ColorParameter vignetteTint = new ColorParameter(Color.black, false, false, true);
         public ColourBlendTypeParameter vignetteBlend = new ColourBlendTypeParameter(ColorBlendType.Normal);
-        public ClampedFloatParameter vignetteBlendValue = new ClampedFloatParameter(0.5f, 0f, 1f);
+        public ClampedFloatParameter vignetteBlendValue = new ClampedFloatParameter(1f, 0f, 1f);
 
+        public ColorParameter screenTint = new ColorParameter(Color.white, false, false, true);
+        public ColourBlendTypeParameter screenTintBlend = new ColourBlendTypeParameter(ColorBlendType.Normal);
+        public ClampedFloatParameter screenTintBlendValue = new ClampedFloatParameter(0f, 0f, 1f);
 
-        public bool IsActive() => IsEnabled;
+        public bool IsActive() => bloomIntenisty.value > 0f || vignetteIntensity.value > 0f || screenTintBlendValue.value > 0f;
 
         public bool IsTileCompatible() => false;
     }

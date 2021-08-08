@@ -94,6 +94,8 @@ half3 Upsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp), int
 
     half3 lowMip = (SampleTexture2DBicubic(TEXTURE2D_X_ARGS(_BloomTexLowMip, sampler_LinearClamp), uv, _BloomTexLowMip_TexelSize.zwxy, (1.0).xx, unity_StereoEyeIndex));
 
+    half3 lerpedMip = lerp(highMip, lowMip, Scatter);
+
     return ColourBlend(highMip, lowMip, highMip, Scatter, blend);
 }
 
