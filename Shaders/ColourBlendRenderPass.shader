@@ -3,7 +3,7 @@
     Properties
     {
         _MainTex ("Base (RGB)", 2D) = "white" { }
-        _ScreenTintColor ("_ScreenTintColor", Color) = (1, 1, 1, 1)
+        _ScreenTintTexture ("Tint (RGB)", 2D) = "white" { }
     }
 
     HLSLINCLUDE
@@ -18,8 +18,10 @@
 
     TEXTURE2D_X(_MainTex);
     float4 _MainTex_TexelSize;
-
+    
     TEXTURE2D_X(_BloomTexture);
+
+    TEXTURE2D_X(_ScreenTintTexture);
 
     int4 _BlendTypeParams;
 
@@ -28,11 +30,8 @@
     #define VignetteBlend           _BlendTypeParams.z
     #define ScreenTintBlend         _BlendTypeParams.w
 
-    float4 _BlendValueParams;
-
-    #define BloomFinalBlendValue        _BlendValueParams.x
-    #define VignetteBlendValue          _BlendValueParams.y
-    #define ScreenTintBlendValue        _BlendValueParams.z
+    float _BloomFinalBlendValue;
+    float _ScreenTintBlendValue;
 
     half4 _VignetteColor;
     float4 _VignetteParams2;
@@ -46,7 +45,7 @@
     #define BloomColor              _BloomParams2.xyz
     #define BloomIntensity          _BloomParams2.w
 
-    half4 _ScreenTintColor;
+    half3 _ScreenTintColor;
 
 
     half4 FragCopy(Varyings input): SV_Target
@@ -81,7 +80,7 @@
         return BloomUpsample(UnityStereoTransformScreenSpaceTex(input.uv), TEXTURE2D_X_ARGS(_MainTex, sampler_LinearClamp), BloomUpSampleBlend);
     }
 
-    half3 ApplyBlendedVignette(half3 input, float2 uv, float2 center, float intensity, int blendType, float blendValue, float smoothness, half3 blendColor)
+    half3 ApplyBlendedVignette(half3 input, float2 uv, float2 center, float intensity, int blendType, float smoothness, half3 blendColor)
     {
         float roundness = 1; // TODO: make this better later
         center = UnityStereoTransformScreenSpaceTex(center);
@@ -94,11 +93,9 @@
         dist.x *= roundness;
         float vfactor = pow(saturate(1.0 - dot(dist, dist)), smoothness);
 
-        half3 blendedVignetteColor = ColourBlend(input, blendColor, input, blendValue, blendType);
-        half3 result = lerp(blendedVignetteColor, input, vfactor);
-
-        return result;
+        return ColourBlend(input, blendColor, input, 1 - vfactor, blendType);
     }
+    
 
     half4 ColorBlendComposition(Varyings i): SV_Target
     {
@@ -109,19 +106,22 @@
         #if defined(_BLOOM)
             {
                 half3 bloom = SAMPLE_TEXTURE2D_X(_BloomTexture, sampler_LinearClamp, uv).xyz * BloomColor * BloomIntensity;
-                color = ColourBlend(color, (color + saturate(bloom)), (color + bloom), BloomFinalBlendValue, BloomFinalBlend);
+                color = ToneMappedColourBlend(color, color + bloom, color + bloom, _BloomFinalBlendValue, BloomFinalBlend);
             }
         #endif
 
-        if (VignetteIntensity > 0)
-        {
-            color = ApplyBlendedVignette(color, i.uv, VignetteCenter, VignetteIntensity, VignetteBlend, VignetteBlendValue, VignetteSmoothness, _VignetteColor);
-        }
+        #if defined(_VIGNETTE)
+            {
+                color = ApplyBlendedVignette(color, i.uv, VignetteCenter, VignetteIntensity, VignetteBlend, VignetteSmoothness, _VignetteColor);
+            }
+        #endif
         
-        if (ScreenTintBlendValue > 0)
-        {
-            color = ColourBlend(color, _ScreenTintColor, color, ScreenTintBlendValue, ScreenTintBlend);
-        }
+        #if defined(_TINT)
+            {
+                half3 blendValue = _ScreenTintBlendValue * SAMPLE_TEXTURE2D_X(_ScreenTintTexture, sampler_LinearClamp, uv).xyz;
+                color = ColourBlend(color, _ScreenTintColor, color, blendValue, ScreenTintBlend);
+            }
+        #endif
 
         return float4(color, 1);
     }
@@ -205,6 +205,8 @@
             #pragma fragment ColorBlendComposition
 
             #pragma multi_compile_local_fragment _ _BLOOM
+            #pragma multi_compile_local_fragment _ _VIGNETTE
+            #pragma multi_compile_local_fragment _ _TINT
 
             ENDHLSL
 

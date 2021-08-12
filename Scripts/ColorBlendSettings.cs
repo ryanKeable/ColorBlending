@@ -22,10 +22,10 @@ namespace UnityEditor.Rendering.Universal
         public ClampedFloatParameter vignetteIntensity = new ClampedFloatParameter(0f, 0f, 1f);
         public ClampedFloatParameter vignetteSmoothness = new ClampedFloatParameter(0.2f, 0.01f, 1f);
         public ColorParameter vignetteTint = new ColorParameter(Color.black, false, false, true);
-        public ColourBlendTypeParameter vignetteBlend = new ColourBlendTypeParameter(ColorBlendType.Normal);
-        public ClampedFloatParameter vignetteBlendValue = new ClampedFloatParameter(1f, 0f, 1f);
+        public ColourBlendTypeParameter vignetteBlend = new ColourBlendTypeParameter(ColorBlendType.Multiply);
 
         public ColorParameter screenTint = new ColorParameter(Color.white, false, false, true);
+        public TextureParameter screenTintTexture = new TextureParameter(null);
         public ColourBlendTypeParameter screenTintBlend = new ColourBlendTypeParameter(ColorBlendType.Normal);
         public ClampedFloatParameter screenTintBlendValue = new ClampedFloatParameter(0f, 0f, 1f);
 

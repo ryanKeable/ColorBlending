@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9122156029730352595
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 165819c37ef1cb143a02dfe83a8fd491, type: 3}
+  m_Name: ColorBlendSettings
+  m_EditorClassIdentifier: 
+  active: 1
+  m_AdvancedMode: 0
+  bloomThreshold:
+    m_OverrideState: 1
+    m_Value: 0.9
+    min: 0
+  bloomIntenisty:
+    m_OverrideState: 1
+    m_Value: 2
+    min: 0
+  bloomScatter:
+    m_OverrideState: 1
+    m_Value: 0.7
+    min: 0
+    max: 1
+  bloomTint:
+    m_OverrideState: 1
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    hdr: 0
+    showAlpha: 0
+    showEyeDropper: 1
+  bloomUpSampleBlend:
+    m_OverrideState: 1
+    m_Value: 11
+  bloomFinalBlend:
+    m_OverrideState: 1
+    m_Value: 18
+  bloomBlendValue:
+    m_OverrideState: 1
+    m_Value: 0.139
+    min: 0
+    max: 1
+  vignetteCenter:
+    m_OverrideState: 1
+    m_Value: {x: 0.5, y: 0.5}
+  vignetteIntensity:
+    m_OverrideState: 1
+    m_Value: 0.139
+    min: 0
+    max: 1
+  vignetteSmoothness:
+    m_OverrideState: 1
+    m_Value: 0.446
+    min: 0.01
+    max: 1
+  vignetteTint:
+    m_OverrideState: 1
+    m_Value: {r: 0.572865, g: 0, b: 1, a: 1}
+    hdr: 0
+    showAlpha: 0
+    showEyeDropper: 1
+  vignetteBlend:
+    m_OverrideState: 1
+    m_Value: 10
+  screenTint:
+    m_OverrideState: 1
+    m_Value: {r: 1, g: 0.12551683, b: 0, a: 1}
+    hdr: 0
+    showAlpha: 0
+    showEyeDropper: 1
+  screenTintTexture:
+    m_OverrideState: 1
+    m_Value: {fileID: 2800000, guid: f274fc69c4856c6428a9acd7344551eb, type: 3}
+  screenTintBlend:
+    m_OverrideState: 1
+    m_Value: 2
+  screenTintBlendValue:
+    m_OverrideState: 1
+    m_Value: 1
+    min: 0
+    max: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: ColorBlend Volume Profile
+  m_EditorClassIdentifier: 
+  components:
+  - {fileID: -9122156029730352595}

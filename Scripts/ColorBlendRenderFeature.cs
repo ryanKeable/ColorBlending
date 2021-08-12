@@ -35,7 +35,6 @@ namespace UnityEditor.Rendering.Universal
             static class ShaderParams
             {
                 public static readonly int tempCopyString;
-                public static readonly int blitTex;
 
                 public static readonly int blendTypes;
                 public static readonly int blendTypeValues;
@@ -57,7 +56,6 @@ namespace UnityEditor.Rendering.Universal
                 static ShaderParams()
                 {
                     tempCopyString = Shader.PropertyToID("_TempCopy");
-                    blitTex = Shader.PropertyToID("_BlitTex");
 
                     blendTypes = Shader.PropertyToID("_BlendTypeParams");
                     blendTypeValues = Shader.PropertyToID("_BlendValueParams");
@@ -67,7 +65,7 @@ namespace UnityEditor.Rendering.Universal
                     bloomParams1 = Shader.PropertyToID("_BloomParams1");
                     bloomParams2 = Shader.PropertyToID("_BloomParams2");
                     bloomTexture = Shader.PropertyToID("_BloomTexture");
-                    bloomTexLowMip = Shader.PropertyToID("_BloomTexLowMip");
+                    bloomTexLowMip = Shader.PropertyToID("_SourceTexLowMip");
 
                     vignetteColor = Shader.PropertyToID("_VignetteColor");
                     vignetteParams2 = Shader.PropertyToID("_VignetteParams2");
@@ -114,7 +112,7 @@ namespace UnityEditor.Rendering.Universal
                 SetupVignette();
                 SetupScreenTint();
 
-                cmd.GetTemporaryRT(ShaderParams.tempCopyString, _descriptor, FilterMode.Point);
+                cmd.GetTemporaryRT(ShaderParams.tempCopyString, _descriptor, FilterMode.Bilinear);
 
                 // copy camera color
                 cmd.Blit(_source, ShaderParams.tempCopyString, _materialToBlit, 0);
@@ -138,13 +136,8 @@ namespace UnityEditor.Rendering.Universal
                 Vector4 blendTypes = new Vector4(bloomUpSampleBlend, bloomFinalBlend, vignetteTintBlend, screenTintBlend);
                 _materialToBlit.SetVector(ShaderParams.blendTypes, blendTypes);
 
-                float bloomFinalBlendValue = _ColorBlend.bloomBlendValue.value;
-                float vignetteTintBlendValue = _ColorBlend.vignetteBlendValue.value;
-                float screenTintBlendValue = _ColorBlend.screenTintBlendValue.value;
-
-                Vector4 blendTypeValues = new Vector4(bloomFinalBlendValue, vignetteTintBlendValue, screenTintBlendValue, 0);
-                _materialToBlit.SetVector(ShaderParams.blendTypeValues, blendTypeValues);
-
+                _materialToBlit.SetFloat("_BloomFinalBlendValue", _ColorBlend.bloomBlendValue.value);
+                _materialToBlit.SetFloat("_ScreenTintBlendValue", _ColorBlend.screenTintBlendValue.value);
             }
 
             #endregion
@@ -160,8 +153,8 @@ namespace UnityEditor.Rendering.Universal
                 }
 
                 // Start at half-res
-                int tw = _descriptor.width;// >> 1;
-                int th = _descriptor.height;// >> 1;
+                int tw = _descriptor.width >> 1;
+                int th = _descriptor.height >> 1;
 
                 // Determine the iteration count
                 int maxSize = Mathf.Max(tw, th);
@@ -178,8 +171,12 @@ namespace UnityEditor.Rendering.Universal
                 _materialToBlit.SetVector(ShaderParams.bloomParams1, new Vector4(scatter, clamp, threshold, thresholdKnee));
 
                 // Prefilter
-                GraphicsFormat format = GraphicsFormat.B10G11R11_UFloatPack32;
-                var desc = GetCompatibleDescriptor(tw, th, format);
+                var desc = _descriptor;
+                desc.width = tw;
+                desc.height = th;
+                desc.graphicsFormat = GraphicsFormat.B10G11R11_UFloatPack32;
+                desc.depthBufferBits = 0;
+                desc.msaaSamples = 1;
 
                 cmd.GetTemporaryRT(ShaderParams.bloomMipDown[0], desc, FilterMode.Bilinear);
                 cmd.GetTemporaryRT(ShaderParams.bloomMipUp[0], desc, FilterMode.Bilinear);
@@ -232,7 +229,6 @@ namespace UnityEditor.Rendering.Universal
 
                 var bloomParams = new Vector4(tint.r, tint.g, tint.b, _ColorBlend.bloomIntenisty.value);
 
-                MDebug.LogGreen($"_ColorBlend.bloomIntenisty.value {_ColorBlend.bloomIntenisty.value}");
                 _materialToBlit.SetVector(ShaderParams.bloomParams2, bloomParams);
                 _materialToBlit.EnableKeyword("_BLOOM");
 
@@ -245,7 +241,11 @@ namespace UnityEditor.Rendering.Universal
 
             void SetupVignette()
             {
-                if (_ColorBlend.vignetteIntensity.value <= 0) return;
+                if (_ColorBlend.vignetteIntensity.value <= 0)
+                {
+                    _materialToBlit.DisableKeyword("_VIGNETTE");
+                    return;
+                }
 
                 var color = _ColorBlend.vignetteTint.value.linear;
                 var center = _ColorBlend.vignetteCenter.value;
@@ -262,6 +262,7 @@ namespace UnityEditor.Rendering.Universal
 
                 _materialToBlit.SetVector(ShaderParams.vignetteColor, v1);
                 _materialToBlit.SetVector(ShaderParams.vignetteParams2, v2);
+                _materialToBlit.EnableKeyword("_VIGNETTE");
             }
 
             #endregion
@@ -270,9 +271,17 @@ namespace UnityEditor.Rendering.Universal
 
             void SetupScreenTint()
             {
-                if (_ColorBlend.screenTintBlendValue.value <= 0) return;
+                if (_ColorBlend.screenTintBlendValue.value <= 0)
+                {
+                    _materialToBlit.DisableKeyword("_TINT");
+                    return;
+                }
 
                 _materialToBlit.SetColor("_ScreenTintColor", _ColorBlend.screenTint.value.linear);
+                _materialToBlit.SetTexture("_ScreenTintTexture", _ColorBlend.screenTintTexture.value);
+                _materialToBlit.EnableKeyword("_TINT");
+
+                MDebug.LogCarnation($"_materialToBlit _TINT keyword enabled? {_materialToBlit.IsKeywordEnabled("_TINT")}");
             }
 
             #endregion
@@ -307,6 +316,7 @@ namespace UnityEditor.Rendering.Universal
             public override void FrameCleanup(CommandBuffer cmd)
             {
                 cmd.ReleaseTemporaryRT(ShaderParams.tempCopyString);
+                cmd.ReleaseTemporaryRT(ShaderParams.bloomMipUp[0]);
             }
 
             #endregion

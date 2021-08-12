@@ -8,33 +8,29 @@ namespace UnityEditor.Rendering.Universal
     [VolumeComponentEditor(typeof(ColorBlendSettings))]
     sealed class ColorBlendSettingsEditor : VolumeComponentEditor
     {
-        SerializedDataParameter m_ScreenTint;
-        SerializedDataParameter m_ScreenTintBlend;
-        SerializedDataParameter m_ScreenTintBlendValue;
 
         SerializedDataParameter m_BloomThreshold;
         SerializedDataParameter m_BloomIntensity;
         SerializedDataParameter m_BloomScatter;
         SerializedDataParameter m_BloomTint;
         SerializedDataParameter m_BloomUpSampleBlend;
-        SerializedDataParameter m_BloomBlendValue;
         SerializedDataParameter m_BloomFinalBlend;
+        SerializedDataParameter m_BloomBlendValue;
 
         SerializedDataParameter m_VignetteCenter;
         SerializedDataParameter m_VignetteIntensity;
         SerializedDataParameter m_VignetteSmoothness;
         SerializedDataParameter m_VignetteTint;
         SerializedDataParameter m_VignetteBlend;
-        SerializedDataParameter m_VignetteBlendValue;
 
+        SerializedDataParameter m_ScreenTint;
+        SerializedDataParameter m_ScreenTintTexture;
+        SerializedDataParameter m_ScreenTintBlend;
+        SerializedDataParameter m_ScreenTintBlendValue;
 
         public override void OnEnable()
         {
             var o = new PropertyFetcher<ColorBlendSettings>(serializedObject);
-
-            m_ScreenTint = Unpack(o.Find(x => x.screenTint));
-            m_ScreenTintBlend = Unpack(o.Find(x => x.screenTintBlend));
-            m_ScreenTintBlendValue = Unpack(o.Find(x => x.screenTintBlendValue));
 
             m_BloomThreshold = Unpack(o.Find(x => x.bloomThreshold));
             m_BloomIntensity = Unpack(o.Find(x => x.bloomIntenisty));
@@ -49,7 +45,11 @@ namespace UnityEditor.Rendering.Universal
             m_VignetteSmoothness = Unpack(o.Find(x => x.vignetteSmoothness));
             m_VignetteTint = Unpack(o.Find(x => x.vignetteTint));
             m_VignetteBlend = Unpack(o.Find(x => x.vignetteBlend));
-            m_VignetteBlendValue = Unpack(o.Find(x => x.vignetteBlendValue));
+
+            m_ScreenTint = Unpack(o.Find(x => x.screenTint));
+            m_ScreenTintTexture = Unpack(o.Find(x => x.screenTintTexture));
+            m_ScreenTintBlend = Unpack(o.Find(x => x.screenTintBlend));
+            m_ScreenTintBlendValue = Unpack(o.Find(x => x.screenTintBlendValue));
         }
 
         public override void OnInspectorGUI()
@@ -71,11 +71,11 @@ namespace UnityEditor.Rendering.Universal
             PropertyField(m_VignetteSmoothness);
             PropertyField(m_VignetteTint);
             PropertyField(m_VignetteBlend);
-            PropertyField(m_VignetteBlendValue);
 
             EditorGUILayout.LabelField("ScreenTint", EditorStyles.miniLabel);
 
             PropertyField(m_ScreenTint);
+            PropertyField(m_ScreenTintTexture);
             PropertyField(m_ScreenTintBlend);
             PropertyField(m_ScreenTintBlendValue);
         }

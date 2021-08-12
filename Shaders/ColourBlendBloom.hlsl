@@ -1,5 +1,5 @@
-TEXTURE2D_X(_BloomTexLowMip);
-float4 _BloomTexLowMip_TexelSize;
+TEXTURE2D_X(_SourceTexLowMip);
+float4 _SourceTexLowMip_TexelSize;
 
 float4 _BloomParams1; // x: scatter, y: clamp, z: threshold (linear), w: threshold knee
 
@@ -92,11 +92,11 @@ half3 Upsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp), int
 {
     half3 highMip = (SAMPLE_TEXTURE2D_X(sourceTex, sampler_LinearClamp, uv));
 
-    half3 lowMip = (SampleTexture2DBicubic(TEXTURE2D_X_ARGS(_BloomTexLowMip, sampler_LinearClamp), uv, _BloomTexLowMip_TexelSize.zwxy, (1.0).xx, unity_StereoEyeIndex));
+    half3 lowMip = (SampleTexture2DBicubic(TEXTURE2D_X_ARGS(_SourceTexLowMip, sampler_LinearClamp), uv, _SourceTexLowMip_TexelSize.zwxy, (1.0).xx, unity_StereoEyeIndex));
 
-    half3 lerpedMip = lerp(highMip, lowMip, Scatter);
+    return lerp(highMip, lowMip, Scatter);
 
-    return ColourBlend(highMip, lowMip, highMip, Scatter, blend);
+    return ToneMappedColourBlend(highMip, lowMip, highMip, Scatter, blend);
 }
 
 half4 BloomUpsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp), int blend)
