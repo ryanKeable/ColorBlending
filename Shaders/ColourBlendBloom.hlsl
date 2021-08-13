@@ -94,13 +94,10 @@ half3 Upsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp), int
 
     half3 lowMip = (SampleTexture2DBicubic(TEXTURE2D_X_ARGS(_SourceTexLowMip, sampler_LinearClamp), uv, _SourceTexLowMip_TexelSize.zwxy, (1.0).xx, unity_StereoEyeIndex));
 
-    return lerp(highMip, lowMip, Scatter);
-
-    return ToneMappedColourBlend(highMip, lowMip, highMip, Scatter, blend);
+    return(ToneMappedColourBlend(highMip, lowMip, highMip, Scatter, blend));
 }
 
 half4 BloomUpsample(float2 uv, TEXTURE2D_X_PARAM(sourceTex, sampler_LinearClamp), int blend)
 {
-    half3 color = Upsample(uv, TEXTURE2D_X_ARGS(sourceTex, sampler_LinearClamp), blend);
-    return float4(color, 1.0h);
+    return float4(Upsample(uv, TEXTURE2D_X_ARGS(sourceTex, sampler_LinearClamp), blend), 1.0h);
 }

@@ -228,6 +228,7 @@ namespace UnityEditor.Rendering.Universal
                 tint = luma > 0f ? tint * (1f / luma) : Color.white;
 
                 var bloomParams = new Vector4(tint.r, tint.g, tint.b, _ColorBlend.bloomIntenisty.value);
+                Color tonemap = tint * (1 / (Mathf.Max(Mathf.Max(tint.r, tint.g), tint.b) + 1.0f));
 
                 _materialToBlit.SetVector(ShaderParams.bloomParams2, bloomParams);
                 _materialToBlit.EnableKeyword("_BLOOM");
@@ -263,6 +264,7 @@ namespace UnityEditor.Rendering.Universal
                 _materialToBlit.SetVector(ShaderParams.vignetteColor, v1);
                 _materialToBlit.SetVector(ShaderParams.vignetteParams2, v2);
                 _materialToBlit.EnableKeyword("_VIGNETTE");
+
             }
 
             #endregion
@@ -280,8 +282,6 @@ namespace UnityEditor.Rendering.Universal
                 _materialToBlit.SetColor("_ScreenTintColor", _ColorBlend.screenTint.value.linear);
                 _materialToBlit.SetTexture("_ScreenTintTexture", _ColorBlend.screenTintTexture.value);
                 _materialToBlit.EnableKeyword("_TINT");
-
-                MDebug.LogCarnation($"_materialToBlit _TINT keyword enabled? {_materialToBlit.IsKeywordEnabled("_TINT")}");
             }
 
             #endregion

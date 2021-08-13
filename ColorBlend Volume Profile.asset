@@ -20,7 +20,7 @@ MonoBehaviour:
     min: 0
   bloomIntenisty:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 1
     min: 0
   bloomScatter:
     m_OverrideState: 1
@@ -35,13 +35,13 @@ MonoBehaviour:
     showEyeDropper: 1
   bloomUpSampleBlend:
     m_OverrideState: 1
-    m_Value: 11
+    m_Value: 18
   bloomFinalBlend:
     m_OverrideState: 1
     m_Value: 18
   bloomBlendValue:
     m_OverrideState: 1
-    m_Value: 0.139
+    m_Value: 0.891
     min: 0
     max: 1
   vignetteCenter:
@@ -49,26 +49,26 @@ MonoBehaviour:
     m_Value: {x: 0.5, y: 0.5}
   vignetteIntensity:
     m_OverrideState: 1
-    m_Value: 0.139
+    m_Value: 0.472
     min: 0
     max: 1
   vignetteSmoothness:
     m_OverrideState: 1
-    m_Value: 0.446
+    m_Value: 0.335
     min: 0.01
     max: 1
   vignetteTint:
     m_OverrideState: 1
-    m_Value: {r: 0.572865, g: 0, b: 1, a: 1}
+    m_Value: {r: 0, g: 0.2735849, b: 0.23817982, a: 1}
     hdr: 0
     showAlpha: 0
     showEyeDropper: 1
   vignetteBlend:
     m_OverrideState: 1
-    m_Value: 10
+    m_Value: 11
   screenTint:
     m_OverrideState: 1
-    m_Value: {r: 1, g: 0.12551683, b: 0, a: 1}
+    m_Value: {r: 1, g: 0.6822509, b: 0, a: 1}
     hdr: 0
     showAlpha: 0
     showEyeDropper: 1
@@ -77,12 +77,64 @@ MonoBehaviour:
     m_Value: {fileID: 2800000, guid: f274fc69c4856c6428a9acd7344551eb, type: 3}
   screenTintBlend:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 16
   screenTintBlendValue:
     m_OverrideState: 1
     m_Value: 1
     min: 0
     max: 1
+--- !u!114 &-5325602802861966228
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b2db86121404754db890f4c8dfe81b2, type: 3}
+  m_Name: Bloom
+  m_EditorClassIdentifier: 
+  active: 0
+  m_AdvancedMode: 0
+  threshold:
+    m_OverrideState: 1
+    m_Value: 0.9
+    min: 0
+  intensity:
+    m_OverrideState: 1
+    m_Value: 5
+    min: 0
+  scatter:
+    m_OverrideState: 1
+    m_Value: 0.7
+    min: 0
+    max: 1
+  clamp:
+    m_OverrideState: 1
+    m_Value: 65472
+    min: 0
+  tint:
+    m_OverrideState: 1
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    hdr: 0
+    showAlpha: 0
+    showEyeDropper: 1
+  highQualityFiltering:
+    m_OverrideState: 1
+    m_Value: 0
+  skipIterations:
+    m_OverrideState: 1
+    m_Value: 1
+    min: 0
+    max: 16
+  dirtTexture:
+    m_OverrideState: 0
+    m_Value: {fileID: 0}
+  dirtIntensity:
+    m_OverrideState: 0
+    m_Value: 0
+    min: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,3 +149,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   components:
   - {fileID: -9122156029730352595}
+  - {fileID: -5325602802861966228}

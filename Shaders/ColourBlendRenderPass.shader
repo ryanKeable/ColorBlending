@@ -91,9 +91,9 @@
         #endif
 
         dist.x *= roundness;
-        float vfactor = pow(saturate(1.0 - dot(dist, dist)), smoothness);
+        float vfactor = 1 - saturate(pow(saturate(1.0 - dot(dist, dist)), smoothness));
 
-        return ColourBlend(input, blendColor, input, 1 - vfactor, blendType);
+        return ColourBlend(input, blendColor, input, vfactor, blendType);
     }
     
 
@@ -106,7 +106,7 @@
         #if defined(_BLOOM)
             {
                 half3 bloom = SAMPLE_TEXTURE2D_X(_BloomTexture, sampler_LinearClamp, uv).xyz * BloomColor * BloomIntensity;
-                color = ToneMappedColourBlend(color, color + bloom, color + bloom, _BloomFinalBlendValue, BloomFinalBlend);
+                color = ToneMappedColourBlend(color, bloom, color + bloom, _BloomFinalBlendValue, BloomFinalBlend);
             }
         #endif
 
